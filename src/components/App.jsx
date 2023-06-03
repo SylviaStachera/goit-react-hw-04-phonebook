@@ -1,4 +1,3 @@
-import { nanoid } from 'nanoid';
 import ContactForm from './ContactForm/ContactForm';
 import ContactList from './ContactList/ContactList';
 import Filter from './Filter/Filter';
@@ -9,13 +8,18 @@ export class App extends Component {
   constructor() {
     super();
 
+    const saveContacts = localStorage.getItem('contacts');
+    const parseContacts = JSON.parse(saveContacts);
+
     this.state = {
-      contacts: [
-        { id: nanoid(), name: 'Rosie Simpson', number: '459-12-56' },
-        { id: nanoid(), name: 'Hermione Kline', number: '443-89-12' },
-        { id: nanoid(), name: 'Eden Clements', number: '645-17-79' },
-        { id: nanoid(), name: 'Annie Copeland', number: '227-91-26' },
-      ],
+      // contacts: [
+      //   { id: nanoid(), name: 'Rosie Simpson', number: '459-12-56' },
+      //   { id: nanoid(), name: 'Hermione Kline', number: '443-89-12' },
+      //   { id: nanoid(), name: 'Eden Clements', number: '645-17-79' },
+      //   { id: nanoid(), name: 'Annie Copeland', number: '227-91-26' },
+      // ],
+
+      contacts: saveContacts ? parseContacts : [],
 
       filter: '',
     };
