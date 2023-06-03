@@ -44,7 +44,13 @@ export class App extends Component {
   //Dodanie danych do local storage
   componentDidMount() {
     const { contacts } = this.state;
-    localStorage.setItem('contacts', JSON.stringify(contacts));
+    
+    try {
+      const serializedState = JSON.stringify(contacts);
+      localStorage.setItem('contacts', serializedState);
+    } catch (error) {
+      console.error('Get state error: ', error.message);
+    }
   }
 
   //Dodanie ZAKTUALIZOWANYCH danych do local storage
