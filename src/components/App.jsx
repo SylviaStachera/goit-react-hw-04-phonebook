@@ -8,8 +8,8 @@ export const App = () => {
   const [filter, setFilter] = useState('');
   const [contacts, setContacts] = useState([]);
 
-  const saveContacts = localStorage.getItem('contacts');
-  const parseContacts = JSON.parse(saveContacts);
+  // const saveContacts = localStorage.getItem('contacts');
+  // const parseContacts = JSON.parse(saveContacts);
 
   // contacts: [
   //   { id: nanoid(), name: 'Rosie Simpson', number: '459-12-56' },
@@ -21,19 +21,16 @@ export const App = () => {
   // contacts: saveContacts ? parseContacts : [],
 
   // Metoda handleSubmit jest wywoływana przy dodawaniu nowego kontaktu i dodaje nowy kontakt do listy kontaktów w stanie komponentu. NewContact pochodzi z ContactForm z metody handleSubmit. Po klinięciu w btn, nowy konatk wysyłany jest tu.
-  const handleSubmit = newContact => {
-    // const { contacts } = this.state;
+  const addContact = newContact => {
     const isExists = contacts.find(
-      conact => conact.name.toLowerCase() === newContact.name.toLowerCase()
+      contact => contact.name.toLowerCase() === newContact.name.toLowerCase()
     );
 
     if (isExists) {
       return alert(`${isExists.name} is already in contacts.`);
     }
 
-    setContacts(prev => ({
-      contacts: [{...prev.contacts, newContact}],
-    }));
+    setContacts(prevContacts => [...prevContacts, newContact]);
   };
 
   //Dodanie danych do local storage + Dodanie ZAKTUALIZOWANYCH danych do local storage
@@ -56,7 +53,7 @@ export const App = () => {
   };
 
   const changeFilter = evt => {
-    setFilter({ filter: evt.currentTarget.value });
+    setFilter(evt.currentTarget.value);
   };
 
   const deleteContact = id => {
@@ -70,12 +67,15 @@ export const App = () => {
   return (
     <div className="wraper">
       <h1>Phonebook</h1>
-      <ContactForm onSubmit={handleSubmit} />
+      <ContactForm onSubmit={addContact} />
 
       <h2>Contacts</h2>
       <Filter value={filter} onChangeFilter={changeFilter} />
       {contacts.length ? (
-        <ContactList contacts={getContacts()} onDelete={deleteContact} />
+        <ContactList
+          contacts={getContacts(contacts, filter)}
+          onDelete={deleteContact}
+        />
       ) : (
         <p>No contact!</p>
       )}
