@@ -31,13 +31,13 @@ const ContactForm = ({ onSubmit }) => {
 
     onSubmit(newContact);
 
-    // resetForm();
+    resetForm();
   };
 
-  // const resetForm = () => {
-  //   setName((name = ''));
-  //   setNumber((number = ''));
-  // };
+  const resetForm = () => {
+    setName('');
+    setNumber('');
+  };
 
   return (
     <form className={css.form} onSubmit={handleSubmit}>
