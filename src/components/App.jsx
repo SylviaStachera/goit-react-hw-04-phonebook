@@ -2,32 +2,27 @@ import ContactForm from './ContactForm/ContactForm';
 import ContactList from './ContactList/ContactList';
 import Filter from './Filter/Filter';
 
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 
-export class App extends Component {
-  constructor() {
-    super();
+export const App = () => {
+  const [filter, setFilter] = useState('');
+  const [contacts, setContacts] = useState([]);
 
-    const saveContacts = localStorage.getItem('contacts');
-    const parseContacts = JSON.parse(saveContacts);
+  const saveContacts = localStorage.getItem('contacts');
+  const parseContacts = JSON.parse(saveContacts);
 
-    this.state = {
-      // contacts: [
-      //   { id: nanoid(), name: 'Rosie Simpson', number: '459-12-56' },
-      //   { id: nanoid(), name: 'Hermione Kline', number: '443-89-12' },
-      //   { id: nanoid(), name: 'Eden Clements', number: '645-17-79' },
-      //   { id: nanoid(), name: 'Annie Copeland', number: '227-91-26' },
-      // ],
+  // contacts: [
+  //   { id: nanoid(), name: 'Rosie Simpson', number: '459-12-56' },
+  //   { id: nanoid(), name: 'Hermione Kline', number: '443-89-12' },
+  //   { id: nanoid(), name: 'Eden Clements', number: '645-17-79' },
+  //   { id: nanoid(), name: 'Annie Copeland', number: '227-91-26' },
+  // ],
 
-      contacts: saveContacts ? parseContacts : [],
-
-      filter: '',
-    };
-  }
+  // contacts: saveContacts ? parseContacts : [],
 
   // Metoda handleSubmit jest wywoływana przy dodawaniu nowego kontaktu i dodaje nowy kontakt do listy kontaktów w stanie komponentu. NewContact pochodzi z ContactForm z metody handleSubmit. Po klinięciu w btn, nowy konatk wysyłany jest tu.
-  handleSubmit = newContact => {
-    const { contacts } = this.state;
+  const handleSubmit = newContact => {
+    // const { contacts } = this.state;
     const isExists = contacts.find(
       conact => conact.name.toLowerCase() === newContact.name.toLowerCase()
     );
@@ -36,35 +31,23 @@ export class App extends Component {
       return alert(`${isExists.name} is already in contacts.`);
     }
 
-    this.setState(prevState => ({
-      contacts: [...prevState.contacts, newContact],
+    setContacts(prev => ({
+      contacts: [{...prev.contacts, newContact}],
     }));
   };
 
-  //Dodanie danych do local storage
-  componentDidMount() {
-    const { contacts } = this.state;
-    
+  //Dodanie danych do local storage + Dodanie ZAKTUALIZOWANYCH danych do local storage
+  useEffect(() => {
     try {
       const serializedState = JSON.stringify(contacts);
       localStorage.setItem('contacts', serializedState);
     } catch (error) {
       console.error('Get state error: ', error.message);
     }
-  }
-
-  //Dodanie ZAKTUALIZOWANYCH danych do local storage
-  componentDidUpdate(prevProps, prevState) {
-    const { contacts } = this.state;
-
-    if (prevState.contacts !== contacts) {
-      localStorage.setItem('contacts', JSON.stringify(contacts));
-    }
-  }
+  }, [contacts]);
 
   // Metoda getContacts zwraca aktualną listę kontaktów.
-  getContacts = () => {
-    const { contacts, filter } = this.state;
+  const getContacts = (contacts, filter) => {
     const normalizeName = filter.toLowerCase();
 
     return contacts.filter(contact =>
@@ -72,37 +55,30 @@ export class App extends Component {
     );
   };
 
-  changeFilter = evt => {
-    this.setState({ filter: evt.currentTarget.value });
+  const changeFilter = evt => {
+    setFilter({ filter: evt.currentTarget.value });
   };
 
-  deleteContact = id => {
-    this.setState(prevState => ({
-      contacts: prevState.contacts.filter(conact => conact.id !== id),
+  const deleteContact = id => {
+    setContacts(prev => ({
+      contacts: prev.contacts.filter(conact => conact.id !== id),
     }));
 
     localStorage.removeItem('id');
   };
 
-  render() {
-    const { filter, contacts } = this.state;
+  return (
+    <div className="wraper">
+      <h1>Phonebook</h1>
+      <ContactForm onSubmit={handleSubmit} />
 
-    return (
-      <div className="wraper">
-        <h1>Phonebook</h1>
-        <ContactForm onSubmit={this.handleSubmit} />
-
-        <h2>Contacts</h2>
-        <Filter value={filter} onChangeFilter={this.changeFilter} />
-        {contacts.length ? (
-          <ContactList
-            contacts={this.getContacts()}
-            onDelete={this.deleteContact}
-          />
-        ) : (
-          <p>No contact!</p>
-        )}
-      </div>
-    );
-  }
-}
+      <h2>Contacts</h2>
+      <Filter value={filter} onChangeFilter={changeFilter} />
+      {contacts.length ? (
+        <ContactList contacts={getContacts()} onDelete={deleteContact} />
+      ) : (
+        <p>No contact!</p>
+      )}
+    </div>
+  );
+};
