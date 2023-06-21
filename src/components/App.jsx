@@ -7,12 +7,16 @@ import { useState, useEffect } from 'react';
 
 export const App = () => {
   const [filter, setFilter] = useState('');
-  const [contacts, setContacts] = useState(() => {
-    const saveContacts = localStorage.getItem('contacts');
-    const parseContacts = JSON.parse(saveContacts);
+  const [contacts, setContacts] = useState([]);
 
-    return saveContacts ? parseContacts : [];
-  });
+  useEffect(() => {
+    const savedContacts = localStorage.getItem('contacts');
+
+    if (savedContacts) {
+      const parsedContacts = JSON.parse(savedContacts);
+      setContacts(parsedContacts);
+    }
+  }, []);
 
   const addContact = newContact => {
     const isExists = contacts.find(
@@ -23,17 +27,12 @@ export const App = () => {
       return alert(`${isExists.name} is already in contacts.`);
     }
 
-    setContacts(prevContacts => [...prevContacts, newContact]);
-  };
+    const updatedContacts = [...contacts, newContact];
 
-  useEffect(() => {
-    try {
-      const serializedState = JSON.stringify(contacts);
-      localStorage.setItem('contacts', serializedState);
-    } catch (error) {
-      console.error('Get state error: ', error.message);
-    }
-  }, [contacts]);
+    setContacts(updatedContacts);
+
+    localStorage.setItem('contacts', JSON.stringify(updatedContacts));
+  };
 
   const getContacts = (contacts, filter) => {
     const normalizeName = filter.toLowerCase();
@@ -48,11 +47,10 @@ export const App = () => {
   };
 
   const deleteContact = id => {
-    setContacts(prevContact =>
-      prevContact.filter(contact => contact.id !== id)
-    );
+    const updatedContacts = contacts.filter(contact => contact.id !== id);
+    setContacts(updatedContacts);
 
-    localStorage.removeItem('id');
+    localStorage.setItem('contacts', JSON.stringify(updatedContacts));
   };
 
   return (
